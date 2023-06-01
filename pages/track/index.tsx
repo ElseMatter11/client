@@ -7,28 +7,31 @@ import TrackList from "@/components/TrackList"
 import Player from "@/components/Player"
 import { useTypedSelector } from "@/hooks/useTypedSelector"
 import { useActions } from "@/hooks/useActions"
+import { NextThunkDispatch, wrapper } from "@/store"
+import { fetchTracks } from "@/store/action-creators/thunk"
+import { RootState } from "@/store/reducers"
+import { AnyAction } from "redux"
+import { useEffect, useState } from "react"
+import axios from "axios"
+
+
 
 const Index=()=>{
-    const tracks:Itrack[]=[
-        { _id:1,
-            name:'qq',
-            artist:'drgdrg',
-            text:'ergdrg',
-            userId:1,
-            listens:0,
-            picture:'http://localhost:5000/image/7dd77287-ac2f-4692-bd5d-6a15111e2832.jpg',
-            audio:'http://localhost:5000/audio/60d666c5-d64f-43ad-9a69-22a611cad5d8.mp3',},
-            { _id:2,
-                name:'q-qulac',
-                artist:'drgdrg',
-                text:'ergdrg',
-                userId:1,
-                listens:0,
-                picture:'http://localhost:5000/image/7dd77287-ac2f-4692-bd5d-6a15111e2832.jpg',
-                audio:'http://localhost:5000/audio/60d666c5-d64f-43ad-9a69-22a611cad5d8.mp3',}
-    ]
+    // const {tracks,error} = useTypedSelector(state => state.track)
     const router = useRouter()
     const {} = useActions();
+    const [tracks,setTracks] = useState([])
+    // if (error){
+    //     return<h1>{error}</h1>
+    // }
+    useEffect( () => {
+        const fetching =async () => {
+        const response = await axios.get('http://localhost:5000/tracks')
+        setTracks(response.data)
+        }
+        fetching()
+    },[])
+    console.log(tracks);
     return<>
     <Navbar></Navbar>
     <div className={styles.center}> 
@@ -49,3 +52,8 @@ const Index=()=>{
 }
 
 export default Index
+
+export const getServerSideProps = wrapper.getServerSideProps((store) => async (context) => {
+    const dispatch = store.dispatch as NextThunkDispatch
+    await dispatch(await fetchTracks())
+})

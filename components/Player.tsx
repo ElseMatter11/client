@@ -12,30 +12,31 @@ import { setDuration } from "@/store/action-creators/player";
 let audio:any;
 
 const Player = () =>{
-    const track:Itrack = { _id:1,
-        name:'drgdg',
-        artist:'drgdrg',
-        text:'ergdrg',
-        userId:1,
-        listens:0,
-        picture:'ebdfbd',
-        audio:'http://localhost:5000/audio/60d666c5-d64f-43ad-9a69-22a611cad5d8.mp3',}
+    
     const  {pause,active,volume,duration,currentTime} = useTypedSelector(state => state.player)
     const {pauseTrack, playTrack,setVolume,setCurrentTime,setDuration} = useActions()
 
         useEffect(() => {
             if (!audio){
                 audio = new Audio()
-                audio.src = track.audio
-                audio.volume = volume/100
-                audio.onloadedmetadata = () => {
-                    setDuration(audio.duration)
-                }
-                audio.ontimeupdate = () => {
-                    setCurrentTime(audio.currentTime)
-                }
+            }else{
+                setAudio();
+                play();
             }
-        },[])
+        },[active])
+
+    const setAudio = () => {
+        if (active){
+            audio.src = 'http://localhost:5000/'+active?.audio
+            audio.volume = volume/100
+            audio.onloadedmetadata = () => {
+                setDuration(audio.duration)
+            }
+            audio.ontimeupdate = () => {
+                setCurrentTime(audio.currentTime)
+            }
+        }
+    }
 
     const play = () => {
         if (pause) {
@@ -57,6 +58,10 @@ const Player = () =>{
         setCurrentTime(Number(e.target.value))
     }
 
+    if(!active){
+        return null;
+    }
+
     return (<>        
     <div className={styles.player}>
         <IconButton onClick={play}>
@@ -66,8 +71,8 @@ const Player = () =>{
                 }
                 </IconButton>
                 <Grid container direction="column" style={{width:200,margin:'0 20px'}}>
-                <div >{track.name}</div>
-                <div style={{fontSize:12,color:'grey'}}>{track.artist}</div>
+                <div >{active?.name}</div>
+                <div style={{fontSize:12,color:'grey'}}>{active?.artist}</div>
             </Grid>
             <TrackProgress left={currentTime} right={duration} onChange={changeCurrentTime} child={undefined}></TrackProgress>
             <VolumeUp style={{marginLeft:'auto'}}></VolumeUp>

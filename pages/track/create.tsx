@@ -3,16 +3,32 @@ import Navbar from "@/components/navbar"
 import { Button, Card, Grid, TextField } from "@material-ui/core"
 import styles from './Create.module.css'
 import StepWrapper from "@/components/StepWrapper"
-import { useState } from "react"
+import { use, useState } from "react"
 import { TextFields } from "@material-ui/icons"
 import FileUpload from "@/components/FileUpload"
 import Player from "@/components/Player"
+import { useInput } from "@/hooks/useInput"
+import axios from "axios"
+import { useRouter } from "next/router"
 
 const Create=()=>{
     const [activeStep,setActiveStep]=useState(0);
+    const name = useInput('')
+    const artist = useInput('')
+    const text = useInput('')
+    const router = useRouter()
     const next = () =>{
         if (activeStep!==2){
             setActiveStep(activeStep+1)
+        }else{
+            const formData = new FormData()
+            formData.append('name',name.value)
+            formData.append('artist',artist.value)
+            formData.append('text',text.value)
+            formData.append('picture',picture? picture:'')
+            formData.append('audio',audio? audio:'')
+            axios.post('http://localhost:5000/tracks',formData).then(resp => router.push('/track'))
+            .catch(e => console.log(e))
         }
         
     }
@@ -27,12 +43,15 @@ const Create=()=>{
         {activeStep === 0 && 
             <Grid container direction="column" style={{padding:20}}>
                 <TextField
+                {...name}
                 style={{marginTop:10}}
                 label={"Track name"}></TextField>
                 <TextField
+                {...artist}
                 style={{marginTop:10}}
-                label={"Track name"}></TextField>
+                label={"Artist"}></TextField>
                 <TextField
+                {...text}
                 style={{marginTop:10}}
                 label={"Track text"}
                 multiline

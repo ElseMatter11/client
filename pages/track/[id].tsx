@@ -1,18 +1,14 @@
 import Navbar from "@/components/navbar";
 import { Itrack } from "@/types/track";
 import { Button, Grid, TextField } from "@material-ui/core";
+import axios from "axios";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
+import { useState } from "react";
 
-const TrackPage = () =>{
-    const track:Itrack = { _id:1,
-        name:'drgdg',
-        artist:'drgdrg',
-        text:'ergdrg',
-        userId:1,
-        listens:0,
-        picture:'ebdfbd',
-        audio:'ebdfbd',}
+const TrackPage = ({serverTrack}:any) =>{
     const router = useRouter();
+    const [track,setTrack] = useState(serverTrack)
     return(
     <>
         <Navbar></Navbar>
@@ -25,7 +21,7 @@ const TrackPage = () =>{
             To List
         </Button>
         <Grid container style={{margin:'20px 0'}}>
-            <img src={track.picture} width={200} height={200}></img>
+            <img src={'http://localhost:5000/'+track.picture} width={200} height={200}></img>
             <div className="">
                 <h1>Name - {track.name}</h1>
                 <h1>Artist - {track.artist}</h1>
@@ -40,3 +36,13 @@ const TrackPage = () =>{
 } 
 
 export default TrackPage;
+
+export const getServerSideProps:GetServerSideProps = async ({params}) => {
+    const response = await axios.get('http://localhost:5000/tracks/3')
+    return{
+        
+        props:{
+            serverTrack: response.data
+        }
+    }
+}
